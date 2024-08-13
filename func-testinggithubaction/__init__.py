@@ -1,15 +1,24 @@
 import logging
-import azure.functions as func  # Correct import for Azure Functions
-from fastapi import FastAPI
-from azure.functions import AsgiMiddleware
-from app.main import app  # Import your FastAPI app
 
-# Initialize the FastAPI app
-fastapi_app = app
+import azure.functions as func
 
-# Entry point for the Azure Function
-def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
-    
-    # Wrap the FastAPI app with AsgiMiddleware for Azure Functions
-    return AsgiMiddleware(fastapi_app).handle(req, context)
+
+    name = req.params.get('name')
+    if not name:
+        try:
+            req_body = req.get_json()
+        except ValueError:
+            pass
+        else:
+            name = req_body.get('name')
+
+    if name:
+        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
+    else:
+        return func.HttpResponse(
+             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
+             status_code=200
+        )
