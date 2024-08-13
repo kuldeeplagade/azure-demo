@@ -43,3 +43,11 @@ class UserServices:
             raise HTTPException(status_code=400, detail=str(e))
             
             
+    @staticmethod      
+    def sv_get_all_users(db: Session, skip: int = 0, limit: int = 10) -> dict:
+        total_count = db.query(UserModel).count()
+        users = db.query(UserModel).offset(skip).limit(limit).all()
+        return {
+            "users": users,
+            "total_count": total_count
+    }
