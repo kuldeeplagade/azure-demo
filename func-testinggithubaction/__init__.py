@@ -1,14 +1,15 @@
 import logging
-import azure.functions as func
+import azure.functions as func  # Correct import for Azure Functions
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.main import app as fastapi_app  # Import the FastAPI app
+from azure.functions import AsgiMiddleware
+from app.main import app  # Import your FastAPI app
 
-async def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+# Initialize the FastAPI app
+fastapi_app = app
+
+# Entry point for the Azure Function
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
-
-    # Convert the Azure Function HTTP request to a FastAPI request
-    asgi_handler = func.AsgiMiddleware(fastapi_app)
-    response = await asgi_handler.handle_async(req, context)
     
-    return response
+    # Wrap the FastAPI app with AsgiMiddleware for Azure Functions
+    return AsgiMiddleware(fastapi_app).handle(req, context)
