@@ -1,24 +1,22 @@
 import logging
-
 import azure.functions as func
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware import Middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+from app.main import app as fastapi_app  # Import your FastAPI app
 
+# Create a middleware chain if needed
+middleware = [
+    Middleware(BaseHTTPMiddleware, dispatch=fastapi_app.middleware_stack),
+    Middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"]),
+]
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+# Define the FastAPI app with the middleware chain
+app = FastAPI(middleware=middleware)
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    """Azure Function handler"""
+    # Use FastAPI app to handle the request
+    return func.AsgiFunctionHandler(app).handle(req, context)
