@@ -20,3 +20,6 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     """Azure Function handler"""
     # Use FastAPI app to handle the request
     return func.AsgiFunctionHandler(app).handle(req, context)
+
+
+
