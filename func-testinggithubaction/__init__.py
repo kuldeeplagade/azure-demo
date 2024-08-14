@@ -1,7 +1,7 @@
 import logging
 import azure.functions as func
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from app.routes import user_route
 from app.database.db import engine
 from app.models import models
@@ -23,7 +23,7 @@ app.add_middleware(LoggingMiddleware)
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Update this with your allowed origins
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
